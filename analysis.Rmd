@@ -1,0 +1,86 @@
+---
+title: "Analysis of colours and learning"
+author: "Timothée Flutre"
+date: "Friday, August 29, 2014"
+output: html_document
+---
+
+License: Creative Commons BY-NC-SA
+
+The program "Nouveaux Commanditaires Science" aims at ...
+It is organized by the Atelier des Jours à Venir and funded by the Fondation de France.
+
+This document was initially developped for the group in Mollins, but can be used as a template for any group willing to investigate a research question.
+Have fun!
+
+
+## Define the question
+
+TODO
+
+
+## Design the experiment
+
+TODO: the protocol is ...
+
+
+## Simulate some data
+
+Before having acquired real data, we can still start working by generating fake data:
+```{r simul.data}
+set.seed(2014)
+nb.words = 36
+nb.people = 50
+p1 = 0.3
+p2 = 0.4
+y1 = rbinom(n=nb.people, size=nb.words, prob=p1)
+y2 = rbinom(n=nb.people, size=nb.words, prob=p2)
+```
+
+
+## Load, format and clean the real data
+
+TODO
+
+
+## Explore the data visually
+
+Let´s plot the raw data:
+```{r plot}
+tmp = cbind(y1, y2)
+colnames(tmp) = c("white", "colour")
+plot(x=jitter(rep(1,nb.people)), y=y1, xlim=c(0,3), ylim=c(0, nb.words),
+     xaxt="n", xlab="", ylab="nb of memorized words", las=1,
+     main=paste0("persons=",nb.people, "   p1=", p1, "   p2=", p2))
+axis(side=1, at=c(1,2), labels=c("white", "colour"))
+points(x=jitter(rep(2, nb.people)), y=y2)
+```
+
+TODO: use segments() to show that data are paired
+
+We can also make two boxplots (especially if there are many samples):
+```{r boxplot}
+boxplot(tmp, main=paste0("persons=",nb.people, "   p1=", p1, "   p2=", p2),
+        ylim=c(0,nb.words), ylab="nb of memorized words", las=1, notch=TRUE)
+```
+
+
+## Write the model
+
+Likelihood: $y_{1i} \sim \mathcal{B}(N, p_1)$ and $y_{2i} \sim \mathcal{B}(N, p_2)$
+
+Is $p_1 = p_2$?
+
+
+## Fit the model
+
+Test the null hypothesis "no effect of background color on memory":
+
+```{r test}
+t.test(y1, y2, alternative="two.sided", paired=TRUE)
+```
+
+
+## And now?
+
+Check the model, then change it? Get more data? Share the results? ...
