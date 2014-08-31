@@ -1,22 +1,23 @@
 ---
 title: "Analysis of colors and learning"
 author: "Timothée Flutre"
-date: "31/08/2014"
+date: "Sunday, August 31, 2014"
 output: html_document
 ---
 
 License: Creative Commons BY-NC-SA
 
-The program "[Nouveaux Commanditaires Science](http://www.joursavenir.org/ncs)" (NCS) aims at generating authentic research questions from a shared curiosity.
-It is implemented by the [Atelier des Jours à Venir](http://www.joursavenir.org/) and funded by the [Fondation de France](http//www.fondationdefrance.org).
+The program [New Commissioners Science](http://www.joursavenir.org/ncs/en) (*Nouveaux Commanditaires Science*, NCS) aims at generating research questions by sharing curiosity between citizens and researchers.
+It is implemented by the [Atelier des Jours à Venir](http://www.joursavenir.org/) and funded by the [Fondation de France](http://www.fondationdefrance.org).
 
-Any scientific study, sooner or later, confronts itself with data, with the goal of "extracting knowledge" from it.
+Any scientific study, sooner or later, confronts itself with data in order to "extract knowledge" from it.
 This arduous, yet rewarding, process may be hard to understand for people outside of the given study, non-scientists *and* scientists alike.
 To avoid common pitfalls, it is worth reading the article "Twenty tips for interpreting scientific claims" [published](http://dx.doi.org/10.1038/503335a) in Nature in 2013.
 
 This document was initially developped for the NCS group in Molins de Rei, hence the research question and the analysis detailed below.
 But it is organized in such a way that it can be used as a template for any group willing to investigate their own research question(s).
-This document is available [online](http//www.github.com/timflutre/ncs) as an Rmd file, and a good introduction to the R programming language is provided at [this website](http://www.statmethods.net).
+This document is available [online](https://www.github.com/timflutre/ncs) as an Rmd file.
+For people discovering the [R software](http://www.r-project.org/), we recommend using the [RStudio interface](http://www.rstudio.com/) and reading [this website](http://www.statmethods.net).
 
 Have fun!
 
@@ -54,6 +55,7 @@ TODO: once the real data were obtained
 ```{r load.data}
 ## data = read.table("data.txt", header=TRUE)
 ## ...
+## nb.people = nrow(data) / 2
 data$background = as.factor(data$background)
 data$background = relevel(data$background, "white")
 ```
@@ -92,28 +94,35 @@ boxplot(data$value ~ data$background,
         main=paste0("persons=",nb.people, "   p1=", p1, "   p2=", p2))
 ```
 
-Yet another way is to make histograms:
+Yet another way is to display both histograms as overlapping:
+<!-- see also http://stackoverflow.com/a/3486057/597069 -->
 ```{r hist}
-hist(data$value[data$background == "white"],
-     breaks="FD", xlim=c(0,nb.words),
-     xlab="nb of memorized words",
+h1 = hist(data$value[data$background == "white"], breaks="FD",
+          plot=FALSE)
+h2 = hist(data$value[data$background == "color"], breaks="FD",
+          plot=FALSE)
+plot(h1,
+     density=3, border="black",
+     ## col=rgb(0,0,1,1/4), border="white",
+     xlim=c(0,nb.words), xlab="nb of memorized words",
      ylab="nb of people", las=1,
      main=paste0("persons=",nb.people, "   p1=", p1, "   p2=", p2))
-hist(data$value[data$background == "color"], add=TRUE,
-     breaks="FD", xlim=c(0,nb.words),
-     xlab="nb of memorized words",
-     ylab="nb of people", las=1,
-     main=paste0("persons=",nb.people, "   p1=", p1, "   p2=", p2))
+plot(h2, add=TRUE,
+     col=rgb(1,0,0,1/4), border="white")
+legend("right", c("white", "color"), bty="n", cex=1.5,
+       ## fill=c(rgb(0,0,1,1/4), rgb(1,0,0,1/4)),
+       ## border=c(rgb(0,0,1,1/4), rgb(1,0,0,1/4)))
+       fill=c("black", rgb(1,0,0,1/4)),
+       border=c("black", "white"),
+       density=c(5, NA))
 ```
-
-TODO: add colors and transparency
 
 
 ## 5) Write the model and the null hypothesis
 
 We first need to explain our notation:
 * $N$: number of people (sample size);
-* $i$: index of the i-th individual (takes values from 1 to $N$);
+* $i$: index of the i-th individual (in $\{1,\ldots,N\}$);
 * $y_{1i}$: number of words memorized by the i-th individual when words are written on a white background (observation, thus known);
 * $y_{2i}$: number of words memorized by the i-th individual when words are written on a color background (observation, thus known);
 * $p_1$: probability of memorizing a word on white background (parameter, thus unknown);
@@ -122,11 +131,13 @@ We first need to explain our notation:
 
 Let us start by assuming that the likelihood of our data given the parameters can be written like this:
 
-$\forall i \; y_{1i} \sim \mathcal{B}(N, p_1) \text{ and } y_{2i} \sim \mathcal{B}(N, p_2)$
+$$
+\forall i \; y_{1i} \sim \mathcal{B}(N, p_1) \text{ and } y_{2i} \sim \mathcal{B}(N, p_2)
+$$
 
 In plain text, the null hypothesis is: "white and color background have the same effect on the number of memorized words".
 
-It can be rephrased mathematically as "$p_1 = p_2$, the alternative hypothesis being "$p_1 \ne p_2$".
+It can be rephrased mathematically as "$p_1 = p_2$ (same as "$p_1 - p_2 = 0$), the alternative hypothesis being "$p_1 \ne p_2$" (resp. "$p_1 - p_2 \ne 0$").
 
 
 ## 6) Test the null hypothesis
@@ -154,7 +165,8 @@ If this is not the case of our data, we shouldn't make any conclusion from the o
 
 It hence seems worth using another test, for instance the Wilcoxon test:
 ```{r wilcoxon.test}
-wilcox.test(y1, y2, alternative="two.sided", paired=TRUE, conf.int=TRUE)
+wilcox.test(y1, y2, alternative="two.sided", paired=TRUE, conf.int=TRUE,
+            exact=FALSE)
 ```
 
 Now, if the p-value doesn't look small enough to us:
@@ -174,18 +186,28 @@ However, in such a case, we may not care much about such a small difference in p
 Each time we calculate a p-value, we hence may be also interested in estimating the parameters, here $p_1$ and $p_2$, to check how different they are from each other.
 This is usually achieved by looking for the values of the parameters which maximize the likelihood.
 
-TODO: use optim() or mle()?
+TODO: see [book](http://www.planta.cn/forum/files_planta/introduction_to_categorical_data_analysis_805.pdf) "An Introduction to Categorical Data Analysis" by Agresti (2007)
+
+<!-- ```{r mle} -->
+<!-- library(stats4) -->
+<!-- mll <- function(){ -->
+<!-- } -->
+<!-- mle(minuslogl=mll, start=list(p1=0.5, p2=0.5), nobs=nb.people, -->
+<!--     method="L-BFGS", lower=c(0,0), upper=c(1,1)) -->
+<!-- #see also package PropCIs -->
+<!-- ``` -->
 
 
 ## 9) And now?
 
 In practice, it is almost always the case that we should improve our first model.
 For instance, if we have not two groups ("white" and "color") but more than two (for instance, "white", "cold color" and "warm color"), we may want to use an ANOVA instead of a t-test.
-This means that we cycle through steps 5 to 8 several times.
+This means that, in all analyzes, we have to cycle through steps 5 to 8 several times.
 
 Eventually, we reach a situation where we are satisfied with our answer, or where we feel that we need external advice.
 In any case, it is time to share our results with others!
 
-For those who feel disturbed and limited by p-values, you may well be interested in the R package BayesianFirstAid.
+For those who feel disturbed and limited by p-values, you may well be interested in the R package [BayesianFirstAid](https://github.com/rasmusab/bayesian_first_aid).
 The strange word in its name, "Bayesian", refers to what is widely believed to be the firmest and soundest way of doing statistical modeling.
-To start smoothly along this path, don't hesitate to read the article "Statistical Analysis and the Illusion of Objectivity" by Berger & Berry [published](http://www.jstor.org/stable/27855070) in the American Scientist in 1988.
+To start smoothly along this path, don't hesitate to read first the article "Statistical Analysis and the Illusion of Objectivity" by Berger & Berry [published](http://www.jstor.org/stable/27855070) in the American Scientist in 1988.
+It may then be of interest to read the [book](http://www.stat.columbia.edu/~gelman/book/) "Bayesian Data Analysis" by Gelman and colleagues.
