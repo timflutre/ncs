@@ -1,0 +1,144 @@
+% Copyright (C) 2014 Timothée Flutre
+% This work is licensed under a Creative Commons BY-NC-SA 
+% (Attribution-NonCommercial-ShareAlike) 4.0 International License:
+% http://creativecommons.org/licenses/by-nc-sa/4.0/
+
+\documentclass[c]{beamer} % use [t] to top-justified body text by default
+% \documentclass[c,handout]{beamer}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\hypersetup{colorlinks, linkcolor=black, urlcolor=gray}
+\usepackage{amsmath}
+\usepackage{bm} % to have mathematical symbols in bold
+\usepackage{multirow}
+\usepackage{tikz}
+\usepackage[francais]{babel}
+\usepackage[utf8]{inputenc}
+
+\graphicspath{{./introstatmod_figures/}}
+
+% -----------------------------------------------------------------------------
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{alerted text}{fg=purple}
+\setbeamertemplate{caption}[numbered]
+\setbeamerfont{caption}{size=\scriptsize}
+\setbeameroption{hide notes}
+% \setbeameroption{show notes}
+\setbeamertemplate{note page}[plain]
+
+\setbeamertemplate{footline}
+{
+  \leavevmode
+  \hbox{
+    \hspace*{-0.06cm}
+    \begin{beamercolorbox}[wd=.2\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}
+      \usebeamerfont{author in head/foot}\insertshortauthor \hspace*{1em} \insertshortinstitute
+    \end{beamercolorbox}
+    \begin{beamercolorbox}[wd=.50\paperwidth,ht=2.25ex,dp=1ex,center]{section in head/foot}
+      \usebeamerfont{section in head/foot}\insertshorttitle
+    \end{beamercolorbox}
+    \begin{beamercolorbox}[wd=.27\paperwidth,ht=2.25ex,dp=1ex,right]{section in head/foot}%
+      \usebeamerfont{section in head/foot}\insertshortdate{}\hspace*{2em}
+      \insertframenumber{} / \inserttotalframenumber\hspace*{2ex}
+    \end{beamercolorbox}
+  }
+  \vskip0pt
+}
+
+\AtBeginSection[]
+{
+  \begin{frame}
+    \frametitle{Outline}
+    \addtocounter{framenumber}{-1}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+% -----------------------------------------------------------------------------
+
+\title[Intro statistical modeling]{Introduction to statistical modeling}
+\author[T. Flutre]{Timoth\'{e}e Flutre}
+\institute[INRA]{Institut National de la Recherche Agronomique, France}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+  
+  \small
+  \begin{center}
+    License: \href{http://creativecommons.org/licenses/by-nc-sa/4.0/}{CC BY-NC-SA 4.0}
+    
+    Availability: public on \href{http://www.github.com/ncs}{GitHub}
+  \end{center}
+\end{frame}                                                                                                                       
+
+\begin{frame}
+  \frametitle{Keywords}
+  \begin{enumerate}
+  \item Variability, distribution, modeling, mathematics
+    \bigskip
+    % \pause
+  \item Population, sample, uncertainty, probability, statistics
+    \bigskip
+    % \pause
+  \item Observations, parameters, likelihood, prior, posterior, Bayesian updating
+    \bigskip
+    % \pause
+  \item Estimation, hypothesis testing, p-value, model comparison, model selection and averaging, prediction
+    \bigskip
+    % \pause
+  \item Context, public, references
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{...}
+  histogram, trend and dispersion, bridge, language for universal agreement
+\end{frame}
+
+\begin{frame}
+  \frametitle{...}
+  inference, subjectivity, genericity
+\end{frame}
+
+\begin{frame}
+  \frametitle{...}
+  Bayes
+\end{frame}
+
+\begin{frame}
+  \frametitle{...}
+  toolbox to answer all inferential questions
+\end{frame}
+
+\begin{frame}
+  \frametitle{...}
+  curious minds, non-scientists and scientists alike, citizens
+  
+  Berger \& Berry, Hennig, Gelman \& Shalizi
+  
+  decision theory
+\end{frame}
+
+\begin{frame}
+  \frametitle{Acknowledgments}
+\end{frame}
+
+% After your last numbered slide
+\appendix
+\newcounter{finalframe}
+\setcounter{finalframe}{\value{framenumber}}
+
+% \begin{frame}
+%   \frametitle{Appendix}
+  % \begin{center}
+  %   \includegraphics[width=0.95\textwidth,height=0.90\textheight,keepaspectratio=true]{myplot}%
+  % \end{center}
+% \end{frame}
+
+\setcounter{framenumber}{\value{finalframe}}
+
+\end{document}
