@@ -1,86 +1,191 @@
 ---
-title: "Analysis of colours and learning"
+title: "Analysis of colors and learning"
 author: "Timothée Flutre"
-date: "Friday, August 29, 2014"
+date: "31/08/2014"
 output: html_document
 ---
 
 License: Creative Commons BY-NC-SA
 
-The program "Nouveaux Commanditaires Science" aims at ...
-It is organized by the Atelier des Jours à Venir and funded by the Fondation de France.
+The program "[Nouveaux Commanditaires Science](http://www.joursavenir.org/ncs)" (NCS) aims at generating authentic research questions from a shared curiosity.
+It is implemented by the [Atelier des Jours à Venir](http://www.joursavenir.org/) and funded by the [Fondation de France](http//www.fondationdefrance.org).
 
-This document was initially developped for the group in Mollins, but can be used as a template for any group willing to investigate a research question.
+Any scientific study, sooner or later, confronts itself with data, with the goal of "extracting knowledge" from it.
+This arduous, yet rewarding, process may be hard to understand for people outside of the given study, non-scientists *and* scientists alike.
+To avoid common pitfalls, it is worth reading the article "Twenty tips for interpreting scientific claims" [published](http://dx.doi.org/10.1038/503335a) in Nature in 2013.
+
+This document was initially developped for the NCS group in Molins de Rei, hence the research question and the analysis detailed below.
+But it is organized in such a way that it can be used as a template for any group willing to investigate their own research question(s).
+This document is available [online](http//www.github.com/timflutre/ncs) as an Rmd file, and a good introduction to the R programming language is provided at [this website](http://www.statmethods.net).
+
 Have fun!
 
 
-## Define the question
+## 1) Define the question
 
-TODO
-
-
-## Design the experiment
-
-TODO: the protocol is ...
+TODO: explain the context, the motivation, etc
 
 
-## Simulate some data
+## 2) Design the experiment
 
-Before having acquired real data, we can still start working by generating fake data:
+TODO: describe the protocol, etc
+
+
+## 3a) Simulate some data
+
+Before having acquired real data, we can start working by generating fake, yet realistic, data:
 ```{r simul.data}
-set.seed(2014)
+set.seed(2014) # for pseudo-random number generator
 nb.words = 36
-nb.people = 50
-p1 = 0.3
-p2 = 0.4
-y1 = rbinom(n=nb.people, size=nb.words, prob=p1)
-y2 = rbinom(n=nb.people, size=nb.words, prob=p2)
+nb.people = 30
+p1 = 0.3 # proba of memorizing a word on white background
+p2 = 0.4 # proba of memorizing a word on color background
+data = data.frame(background=c(rep("white", nb.people),
+                               rep("color", nb.people)),
+                  value=c(rbinom(n=nb.people, size=nb.words, prob=p1),
+                          rbinom(n=nb.people, size=nb.words, prob=p2)))
 ```
 
 
-## Load, format and clean the real data
+## 3b) Load the real data (and format them)
 
-TODO
+TODO: once the real data were obtained
+
+```{r load.data}
+## data = read.table("data.txt", header=TRUE)
+## ...
+data$background = as.factor(data$background)
+data$background = relevel(data$background, "white")
+```
 
 
-## Explore the data visually
+## 4) Explore the data
 
-Let´s plot the raw data:
+The table of data looks like this:
+```{r overview.data}
+head(data)
+summary(data)
+tapply(data$value, list(data$background), summary)
+```
+
+However, tables of numbers are hard (and boring) to read.
+Instead, it is highly advised to make plots.
+
+Let us make a scatter plot of the raw data:
 ```{r plot}
-tmp = cbind(y1, y2)
-colnames(tmp) = c("white", "colour")
-plot(x=jitter(rep(1,nb.people)), y=y1, xlim=c(0,3), ylim=c(0, nb.words),
-     xaxt="n", xlab="", ylab="nb of memorized words", las=1,
+plot(x=jitter(rep(1, nb.people), amount=0.2),
+     y=data$value[data$background == "white"],
+     xlim=c(0,3), xlab="", xaxt="n",
+     ylim=c(0, nb.words), ylab="nb of memorized words", las=1,
      main=paste0("persons=",nb.people, "   p1=", p1, "   p2=", p2))
-axis(side=1, at=c(1,2), labels=c("white", "colour"))
-points(x=jitter(rep(2, nb.people)), y=y2)
+axis(side=1, at=c(1,2), labels=c("white", "color"))
+points(x=jitter(rep(2, nb.people), amount=0.2),
+       y=data$value[data$background == "color"])
 ```
 
-TODO: use segments() to show that data are paired
+<!-- TODO: use segments() to show that data are paired -->
 
-We can also make two boxplots (especially if there are many samples):
+We can also make boxplots, especially if there are many samples (for instance > 20):
 ```{r boxplot}
-boxplot(tmp, main=paste0("persons=",nb.people, "   p1=", p1, "   p2=", p2),
-        ylim=c(0,nb.words), ylab="nb of memorized words", las=1, notch=TRUE)
+boxplot(data$value ~ data$background,
+        ylim=c(0,nb.words), ylab="nb of memorized words", las=1, notch=TRUE,
+        main=paste0("persons=",nb.people, "   p1=", p1, "   p2=", p2))
 ```
 
-
-## Write the model
-
-Likelihood: $y_{1i} \sim \mathcal{B}(N, p_1)$ and $y_{2i} \sim \mathcal{B}(N, p_2)$
-
-Is $p_1 = p_2$?
-
-
-## Fit the model
-
-Test the null hypothesis "no effect of background color on memory":
-
-```{r test}
-t.test(y1, y2, alternative="two.sided", paired=TRUE)
+Yet another way is to make histograms:
+```{r hist}
+hist(data$value[data$background == "white"],
+     breaks="FD", xlim=c(0,nb.words),
+     xlab="nb of memorized words",
+     ylab="nb of people", las=1,
+     main=paste0("persons=",nb.people, "   p1=", p1, "   p2=", p2))
+hist(data$value[data$background == "color"], add=TRUE,
+     breaks="FD", xlim=c(0,nb.words),
+     xlab="nb of memorized words",
+     ylab="nb of people", las=1,
+     main=paste0("persons=",nb.people, "   p1=", p1, "   p2=", p2))
 ```
 
+TODO: add colors and transparency
 
-## And now?
 
-Check the model, then change it? Get more data? Share the results? ...
+## 5) Write the model and the null hypothesis
+
+We first need to explain our notation:
+* $N$: number of people (sample size);
+* $i$: index of the i-th individual (takes values from 1 to $N$);
+* $y_{1i}$: number of words memorized by the i-th individual when words are written on a white background (observation, thus known);
+* $y_{2i}$: number of words memorized by the i-th individual when words are written on a color background (observation, thus known);
+* $p_1$: probability of memorizing a word on white background (parameter, thus unknown);
+* $p_2$: probability of memorizing a word on color background (parameter, thus unknown);
+* $y_i \sim \mathcal{B}(N, p)$: mathematical expression from probability theory meaning that the variable $y_i$ is distributed according to a Binomial distribution with $N$ trials and probability of success $p$ for each trial.
+
+Let us start by assuming that the likelihood of our data given the parameters can be written like this:
+
+$\forall i \; y_{1i} \sim \mathcal{B}(N, p_1) \text{ and } y_{2i} \sim \mathcal{B}(N, p_2)$
+
+In plain text, the null hypothesis is: "white and color background have the same effect on the number of memorized words".
+
+It can be rephrased mathematically as "$p_1 = p_2$, the alternative hypothesis being "$p_1 \ne p_2$".
+
+
+## 6) Test the null hypothesis
+
+At this step, it is natural to want to test the null hypothesis.
+More specifically, we may want to know if we can reject it.
+
+Let us start with a t-test comparing the mean number of memorized words in the two groups:
+```{r t.test}
+y1 = data$value[data$background == "white"]
+y2 = data$value[data$background == "color"]
+(res.ttest = t.test(y1, y2, alternative="two.sided", paired=TRUE))
+```
+
+Usually, we reject the null hypothesis when the p-value, here equal to `r res.ttest$p.value`, is small enough.
+(No need for first-time readers to know more at this point about what the p-value means and how it is calculated.)
+
+
+## 7) Check the assumptions of the test
+
+The p-value is maybe small, for instance below 5% or 1%.
+However, it is valid *only* if the assumptions of the t-test are met.
+For instance, the t-test assumes that the data are Normally distributed.
+If this is not the case of our data, we shouldn't make any conclusion from the output of the t-test.
+
+It hence seems worth using another test, for instance the Wilcoxon test:
+```{r wilcoxon.test}
+wilcox.test(y1, y2, alternative="two.sided", paired=TRUE, conf.int=TRUE)
+```
+
+Now, if the p-value doesn't look small enough to us:
+* is it because the null hypothesis is "true", meaning that it better corresponds to the reality than the alternative hypothesis?
+* or is it because we don't have enough power, and for instance we could get more data by increasing the sample size?
+
+Notes (more technical):
+* A p-value only allows us to reject the null hypothesis. As strange as it sounds, it doesn't allow us to accept the alternative hypothesis.
+* A p-value is hard to interpret. Indeed, it is *not* equal to the probability of the null hypothesis *given the data*. Instead, it is equal to the probability of the test statistic having a value equal or more extreme than the one obtained from the data *given that the null hypothesis is true*.
+
+
+## 8) Estimate the parameters
+
+If we have a lot of samples, we may be able to reject the null hypothesis, even if $p_1$ and $p_2$ are almost equal, say $p_1 = 0.3$ and $p2 = 0.3001$.
+However, in such a case, we may not care much about such a small difference in practice.
+
+Each time we calculate a p-value, we hence may be also interested in estimating the parameters, here $p_1$ and $p_2$, to check how different they are from each other.
+This is usually achieved by looking for the values of the parameters which maximize the likelihood.
+
+TODO: use optim() or mle()?
+
+
+## 9) And now?
+
+In practice, it is almost always the case that we should improve our first model.
+For instance, if we have not two groups ("white" and "color") but more than two (for instance, "white", "cold color" and "warm color"), we may want to use an ANOVA instead of a t-test.
+This means that we cycle through steps 5 to 8 several times.
+
+Eventually, we reach a situation where we are satisfied with our answer, or where we feel that we need external advice.
+In any case, it is time to share our results with others!
+
+For those who feel disturbed and limited by p-values, you may well be interested in the R package BayesianFirstAid.
+The strange word in its name, "Bayesian", refers to what is widely believed to be the firmest and soundest way of doing statistical modeling.
+To start smoothly along this path, don't hesitate to read the article "Statistical Analysis and the Illusion of Objectivity" by Berger & Berry [published](http://www.jstor.org/stable/27855070) in the American Scientist in 1988.
