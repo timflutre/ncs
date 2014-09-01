@@ -137,7 +137,7 @@ $$
 
 In plain text, the null hypothesis is: "white and color background have the same effect on the number of memorized words".
 
-It can be rephrased mathematically as "$p_1 = p_2$ (same as "$p_1 - p_2 = 0$), the alternative hypothesis being "$p_1 \ne p_2$" (resp. "$p_1 - p_2 \ne 0$").
+It can be rephrased mathematically as "$p_1 = p_2$" (same as "$p_1 - p_2 = 0$"), the alternative hypothesis being "$p_1 \ne p_2$" (same as "$p_1 - p_2 \ne 0$").
 
 
 ## 6) Test the null hypothesis
@@ -180,7 +180,7 @@ Notes (more technical):
 
 ## 8) Estimate the parameters
 
-If we have a lot of samples, we may be able to reject the null hypothesis, even if $p_1$ and $p_2$ are almost equal, say $p_1 = 0.3$ and $p2 = 0.3001$.
+If we have a lot of samples, we may be able to reject the null hypothesis, even if $p_1$ and $p_2$ are almost equal, say $p_1 = 0.3$ and $p_2 = 0.3001$.
 However, in such a case, we may not care much about such a small difference in practice.
 
 Each time we calculate a p-value, we hence may be also interested in estimating the parameters, here $p_1$ and $p_2$, to check how different they are from each other.
